@@ -83,7 +83,7 @@ target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
     -Wshadow
     -Wdouble-promotion
 
-    $<$<CONFIG:Debug>:-Ofast>
+    $<$<CONFIG:Debug>:-O3>
     $<$<CONFIG:Debug>:-g3>
 
     $<$<CONFIG:Release>:-Ofast>

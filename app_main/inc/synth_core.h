@@ -74,51 +74,15 @@ static inline int16_t softclip(int32_t x) {
 }
 
 static inline uint32_t phase_inc_to_freq_hz(uint32_t inc) {
-    uint32_t hi = inc >> 16;
-    uint32_t lo = inc & 0xFFFFu;
-    uint32_t hi_mul = hi * SAMP_RATE;
-    uint32_t lo_mul = lo * SAMP_RATE;
-    uint32_t low = (hi_mul << 16) + lo_mul;
-    uint32_t carry = (low < lo_mul) ? 1u : 0u;
-
-    return (hi_mul >> 16) + carry;
-}
-
-static inline uint32_t ratio_to_phase_inc(uint32_t num, uint32_t den) {
-    uint32_t inc = 0;
-
-    if (den == 0) {
-        return 0;
-    }
-
-    if (num >= den) {
-        return 0xFFFFFFFFu;
-    }
-
-    for (uint32_t i = 0; i < 32; i++) {
-        num <<= 1;
-        inc <<= 1;
-
-        if (num >= den) {
-            num -= den;
-            inc |= 1u;
-        }
-    }
-
-    return inc;
+    return (uint32_t)(((uint64_t)inc * SAMP_RATE) >> 32);
 }
 
 static inline uint32_t freq_hz_to_phase_inc(uint32_t freq) {
-    return ratio_to_phase_inc(freq, SAMP_RATE);
+    return (uint32_t)(((uint64_t)freq << 32) / SAMP_RATE);
 }
 
 static inline uint32_t freq_milli_hz_to_phase_inc(uint32_t milli_hz) {
-    return ratio_to_phase_inc(milli_hz, SAMP_RATE * 1000u);
-}
-
-static inline uint32_t mul_u32_u16_shr15(uint32_t x, uint16_t y) {
-    return (((x >> 16) * (uint32_t)y) << 1) +
-           (((x & 0xFFFFu) * (uint32_t)y) >> 15);
+    return (uint32_t)(((uint64_t)milli_hz << 32) / ((uint64_t)SAMP_RATE * 1000u));
 }
 
 static inline uint32_t cc_to_level(uint8_t value) {
@@ -423,24 +387,14 @@ private:
         }
 
         int32_t lfo = sin_lut[freq_lfo_phase >> (32 - WAVE_BITS)];
-        uint32_t lfo_abs = (lfo < 0) ? (uint32_t)-lfo : (uint32_t)lfo;
-        uint16_t depth_scale =
-            (uint16_t)((lfo_abs * (uint32_t)freq_lfo_depth) >> 15);
-        uint32_t delta = mul_u32_u16_shr15(phase_inc, depth_scale);
+        int64_t scale = (int64_t)lfo * (int64_t)freq_lfo_depth;
+        int64_t delta = ((int64_t)phase_inc * scale) >> 30;
 
-        if (lfo < 0 && delta >= phase_inc) {
+        if (delta < 0 && (uint64_t)(-delta) >= phase_inc) {
             return 0;
         }
 
-        if (lfo < 0) {
-            return phase_inc - delta;
-        }
-
-        if ((0xFFFFFFFFu - phase_inc) < delta) {
-            return 0xFFFFFFFFu;
-        }
-
-        return phase_inc + delta;
+        return (uint32_t)((int64_t)phase_inc + delta);
     }
 
 public:
