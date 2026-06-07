@@ -1,27 +1,21 @@
 # NanoFM
 
-A fully fixed-point 2-operator FM synthesizer running on the STM32F103, with USB MIDI input and PWM audio output.
+A fully fixed-point 2-operator FM synthesizer running on the STM32F103, with USB MIDI input and PWM audio output.\
 NanoFM 是一个运行在 STM32F103 上的全定点 2OP FM 合成器，支持 USB MIDI 输入，并通过 PWM 输出音频。
-
-## What is this? / 这是什么？
-
-NanoFM is designed as a compact embedded synth engine for resource-limited Cortex-M3 hardware. The firmware combines STM32CubeMX board support, FreeRTOS task scheduling, TinyUSB MIDI handling, and a fixed-point synthesis core.
-
-NanoFM 面向资源受限的 Cortex-M3 嵌入式平台设计，工程整合了 STM32CubeMX 板级代码、FreeRTOS 任务调度、TinyUSB MIDI 处理以及全定点合成核心。
 
 ## It features / 它拥有
 
-- Fixed-point 2-operator synthesis core / 全定点双 Operator 合成核心
+- Fixed-point 2-operator synthesis core / 全定点 2OP 合成核心
 - FM, feedback FM, and additive algorithms / 支持 FM、带反馈 FM 和加法算法
-- 40 kHz audio render rate with double-buffered DMA / 40 kHz 音频渲染率，双缓冲 DMA 输出
+- 40 kHz sample rate with double-buffered DMA / 40 kHz 采样率，双缓冲 DMA 输出
 - USB MIDI support for notes, CCs, and program changes / 支持 USB MIDI 音符、CC 和音色切换
 - Built-in patch bank with 8 simple patchs / 内置 8 个预设简单音色
 - ADSR envelopes, waveform selection, pitch offsets, and frequency LFO / 支持 ADSR、波形选择、音高偏移和频率 LFO
 
 ## CC controls / CC 控制表
 
-All CC values are standard 0-127 MIDI values.
-所有 CC 的输入值都是标准 MIDI 0-127。
+All CC values are standard 0-127 MIDI values.\
+所有 CC 的输入值都是标准 MIDI 0-127
 
 ### Global / 全局
 
@@ -34,7 +28,7 @@ All CC values are standard 0-127 MIDI values.
 
 ### Operators / 算子
 
-OP0 uses CC 20-29, OP1 uses CC 40-49.
+OP0 uses CC 20-29, OP1 uses CC 40-49.\
 OP0 使用 CC 20-29，OP1 使用 CC 40-49。
 
 | OP0 CC | OP1 CC | Parameter | 参数 | Range / 范围 |
@@ -81,6 +75,9 @@ It will output the：
 
 - `app_main/` - synth engine and application tasks / 合成器核心与应用任务
 - `Src/`, `Inc/` - STM32CubeMX generated code and board configuration / STM32CubeMX 生成代码与板级配置
-- `FreeRTOS-Kernel/` - FreeRTOS kernel / FreeRTOS 内核
-- `tinyusb/` - USB device stack / USB 设备协议栈
 - `cmake/` - toolchain and STM32CubeMX CMake integration / 工具链与 STM32CubeMX 的 CMake 集成
+- `NanoFM.ioc` - STM32CubeMX Project / STM32CubeMX 项目
+
+---
+
+If you enjoyed this, please give me a star ⭐!
