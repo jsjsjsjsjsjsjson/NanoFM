@@ -39,7 +39,12 @@
 #define CC_MAX_FREQ_LFO_RATE_MILLI_HZ 20000u
 #define CC_MAX_FREQ_LFO_DEPTH 4096u
 
-static inline int16_t clamp16(int32_t x) {
+static inline __attribute__((always_inline)) int16_t clamp16(int32_t x) {
+#if defined(__GNUC__) && (defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__))
+    int32_t y;
+    __asm__ ("ssat %0, #16, %1" : "=r"(y) : "r"(x));
+    return (int16_t)y;
+#else
     if (x > 32767) {
         return 32767;
     }
@@ -49,13 +54,11 @@ static inline int16_t clamp16(int32_t x) {
     }
 
     return (int16_t)x;
+#endif
 }
 
-static inline int16_t softclip(int32_t x) {
-    if (x > 32767)
-        x = 32767;
-    else if (x < -32768)
-        x = -32768;
+static inline __attribute__((always_inline)) int16_t softclip(int32_t x) {
+    x = clamp16(x);
 
     int32_t x2 = (x * x) >> 15;
     int32_t x3 = (x2 * x) >> 15;
@@ -65,12 +68,7 @@ static inline int16_t softclip(int32_t x) {
     // gain compensation: roughly *1.5
     y = y + (y >> 1);
 
-    if (y > 32767)
-        y = 32767;
-    else if (y < -32768)
-        y = -32768;
-
-    return (int16_t)y;
+    return clamp16(y);
 }
 
 static inline uint32_t phase_inc_to_freq_hz(uint32_t inc) {
@@ -866,12 +864,12 @@ public:
         }
 
         out = (out * (int32_t)velocity_gain) >> 16;
-        return clamp16(out);
+        return softclip(out);
     }
 };
 
 #define MIDI_CHANNEL_COUNT 2
-#define VOICES_PER_MIDI_CH 8
+#define VOICES_PER_MIDI_CH 7
 
 class MIDI_CHANNEL {
 private:
