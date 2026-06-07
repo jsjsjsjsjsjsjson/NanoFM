@@ -916,8 +916,8 @@ public:
     }
 };
 
-#define MIDI_CHANNEL_COUNT 1
-#define VOICES_PER_MIDI_CH 10
+#define MIDI_CHANNEL_COUNT 2
+#define VOICES_PER_MIDI_CH 8
 
 class MIDI_CHANNEL {
 private:
