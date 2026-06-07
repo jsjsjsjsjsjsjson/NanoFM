@@ -1,5 +1,5 @@
 # NanoFM
-
+![NanoFM](NanoFM.jpg)
 A fully fixed-point 2-operator FM synthesizer running on the STM32F103, with USB MIDI input and PWM audio output.\
 NanoFM 是一个运行在 STM32F103 上的全定点 2OP FM 合成器，支持 USB MIDI 输入，并通过 PWM 输出音频。
 
