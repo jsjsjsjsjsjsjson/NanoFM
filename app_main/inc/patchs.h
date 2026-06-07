@@ -19,9 +19,6 @@ typedef struct {
 
     uint32_t freq_lfo_rate_milli_hz;
     uint16_t freq_lfo_depth;
-
-    uint32_t amp_lfo_rate_milli_hz;
-    uint16_t amp_lfo_depth;
 } op_patch_t;
 
 typedef struct {
@@ -36,16 +33,10 @@ typedef struct {
 #define PATCH_BANK_SIZE 8
 
 #define OP_PATCH(wave_, attack_, decay_, sustain_, release_, octave_, semi_, level_) \
-    { wave_, attack_, decay_, sustain_, release_, octave_, semi_, level_, 0, 0, 0, 0 }
+    { wave_, attack_, decay_, sustain_, release_, octave_, semi_, level_, 0, 0 }
 
 #define OP_PATCH_LFO(wave_, attack_, decay_, sustain_, release_, octave_, semi_, level_, freq_lfo_rate_milli_hz_, freq_lfo_depth_) \
-    { wave_, attack_, decay_, sustain_, release_, octave_, semi_, level_, freq_lfo_rate_milli_hz_, freq_lfo_depth_, 0, 0 }
-
-#define OP_PATCH_AMP_LFO(wave_, attack_, decay_, sustain_, release_, octave_, semi_, level_, amp_lfo_rate_milli_hz_, amp_lfo_depth_) \
-    { wave_, attack_, decay_, sustain_, release_, octave_, semi_, level_, 0, 0, amp_lfo_rate_milli_hz_, amp_lfo_depth_ }
-
-#define OP_PATCH_LFOS(wave_, attack_, decay_, sustain_, release_, octave_, semi_, level_, freq_lfo_rate_milli_hz_, freq_lfo_depth_, amp_lfo_rate_milli_hz_, amp_lfo_depth_) \
-    { wave_, attack_, decay_, sustain_, release_, octave_, semi_, level_, freq_lfo_rate_milli_hz_, freq_lfo_depth_, amp_lfo_rate_milli_hz_, amp_lfo_depth_ }
+    { wave_, attack_, decay_, sustain_, release_, octave_, semi_, level_, freq_lfo_rate_milli_hz_, freq_lfo_depth_ }
 
 #define PATCH_FM(mod_index_, feedback_, mod_, car_) \
     { ALG_FM, mod_index_, feedback_, { mod_, car_ } }

@@ -23,8 +23,6 @@
 #define CC_OP0_RELEASE 27
 #define CC_OP0_FREQ_LFO_RATE 28
 #define CC_OP0_FREQ_LFO_DEPTH 29
-#define CC_OP0_AMP_LFO_RATE 30
-#define CC_OP0_AMP_LFO_DEPTH 31
 
 #define CC_OP1_WAVE 40
 #define CC_OP1_LEVEL 41
@@ -36,14 +34,10 @@
 #define CC_OP1_RELEASE 47
 #define CC_OP1_FREQ_LFO_RATE 48
 #define CC_OP1_FREQ_LFO_DEPTH 49
-#define CC_OP1_AMP_LFO_RATE 50
-#define CC_OP1_AMP_LFO_DEPTH 51
 
 #define CC_MAX_ENV_MS 2000u
 #define CC_MAX_FREQ_LFO_RATE_MILLI_HZ 20000u
 #define CC_MAX_FREQ_LFO_DEPTH 4096u
-#define CC_MAX_AMP_LFO_RATE_MILLI_HZ 20000u
-#define CC_MAX_AMP_LFO_DEPTH 65535u
 
 static inline int16_t clamp16(int32_t x) {
     if (x > 32767) {
@@ -148,17 +142,6 @@ static inline uint32_t cc_to_freq_lfo_rate_phase_inc(uint8_t value) {
 
 static inline uint16_t cc_to_freq_lfo_depth(uint8_t value) {
     return (uint16_t)(((uint32_t)value * CC_MAX_FREQ_LFO_DEPTH) / 127u);
-}
-
-static inline uint32_t cc_to_amp_lfo_rate_phase_inc(uint8_t value) {
-    uint32_t milli_hz =
-        ((uint32_t)value * CC_MAX_AMP_LFO_RATE_MILLI_HZ) / 127u;
-
-    return freq_milli_hz_to_phase_inc(milli_hz);
-}
-
-static inline uint16_t cc_to_amp_lfo_depth(uint8_t value) {
-    return (uint16_t)(((uint32_t)value * CC_MAX_AMP_LFO_DEPTH) / 127u);
 }
 
 static inline int8_t cc_to_octave(uint8_t value) {
@@ -376,9 +359,6 @@ private:
     uint32_t freq_lfo_phase_inc = 0;
     uint32_t freq_lfo_phase = 0;
     uint16_t freq_lfo_depth = 0;
-    uint32_t amp_lfo_phase_inc = 0;
-    uint32_t amp_lfo_phase = 0;
-    uint16_t amp_lfo_depth = 0;
     uint32_t lfsr = 0xCAFEBABE;
     wave_type_t wave_type = WAVE_SINE;
 
@@ -463,18 +443,6 @@ private:
         return phase_inc + delta;
     }
 
-    uint32_t current_amp_gain() {
-        if (amp_lfo_phase_inc == 0 || amp_lfo_depth == 0) {
-            return LEVEL_MAX;
-        }
-
-        int32_t lfo = sin_lut[amp_lfo_phase >> (32 - WAVE_BITS)];
-        uint32_t unipolar = (uint32_t)(lfo + 32768);
-        uint32_t reduction = (uint32_t)amp_lfo_depth - ((unipolar * (uint32_t)amp_lfo_depth) >> 16);
-
-        return LEVEL_MAX - reduction;
-    }
-
 public:
     void set_note(uint8_t n) {
         note = n;
@@ -553,31 +521,6 @@ public:
         return freq_lfo_depth;
     }
 
-    void set_amp_lfo(uint32_t rate_phase_inc, uint32_t depth) {
-        amp_lfo_phase_inc = rate_phase_inc;
-        set_amp_lfo_depth(depth);
-    }
-
-    void set_amp_lfo_rate(uint32_t rate_phase_inc) {
-        amp_lfo_phase_inc = rate_phase_inc;
-    }
-
-    uint32_t get_amp_lfo_rate() {
-        return amp_lfo_phase_inc;
-    }
-
-    void set_amp_lfo_depth(uint32_t depth) {
-        if (depth > CC_MAX_AMP_LFO_DEPTH) {
-            depth = CC_MAX_AMP_LFO_DEPTH;
-        }
-
-        amp_lfo_depth = (uint16_t)depth;
-    }
-
-    uint16_t get_amp_lfo_depth() {
-        return amp_lfo_depth;
-    }
-
     void set_phase(uint32_t p) {
         phase = p;
     }
@@ -606,7 +549,6 @@ public:
         env.note_on();
         phase = 0;
         freq_lfo_phase = 0;
-        amp_lfo_phase = 0;
     }
 
     void note_off() {
@@ -637,10 +579,8 @@ public:
         uint32_t e = env.process();
         int32_t r = ((int32_t)wave_lookup(phase + pm) * (int32_t)e) >> 16;
         r = (r * level) >> 16;
-        r = (r * (int32_t)current_amp_gain()) >> 16;
         phase += current_phase_inc();
         freq_lfo_phase += freq_lfo_phase_inc;
-        amp_lfo_phase += amp_lfo_phase_inc;
         return r;
     }
 
@@ -782,11 +722,6 @@ public:
                 p->op[i].freq_lfo_depth
             );
 
-            op[i].set_amp_lfo(
-                freq_milli_hz_to_phase_inc(p->op[i].amp_lfo_rate_milli_hz),
-                p->op[i].amp_lfo_depth
-            );
-
         }
     }
 
@@ -849,18 +784,6 @@ public:
     void set_op_freq_lfo_depth(uint32_t idx, uint16_t depth) {
         if (idx < 2) {
             op[idx].set_freq_lfo_depth(depth);
-        }
-    }
-
-    void set_op_amp_lfo_rate(uint32_t idx, uint32_t rate_phase_inc) {
-        if (idx < 2) {
-            op[idx].set_amp_lfo_rate(rate_phase_inc);
-        }
-    }
-
-    void set_op_amp_lfo_depth(uint32_t idx, uint32_t depth) {
-        if (idx < 2) {
-            op[idx].set_amp_lfo_depth(depth);
         }
     }
 
@@ -931,22 +854,6 @@ public:
             set_op_freq_lfo_depth(
                 (cc >= CC_OP1_WAVE) ? 1u : 0u,
                 cc_to_freq_lfo_depth(value)
-            );
-            break;
-
-        case CC_OP0_AMP_LFO_RATE:
-        case CC_OP1_AMP_LFO_RATE:
-            set_op_amp_lfo_rate(
-                (cc >= CC_OP1_WAVE) ? 1u : 0u,
-                cc_to_amp_lfo_rate_phase_inc(value)
-            );
-            break;
-
-        case CC_OP0_AMP_LFO_DEPTH:
-        case CC_OP1_AMP_LFO_DEPTH:
-            set_op_amp_lfo_depth(
-                (cc >= CC_OP1_WAVE) ? 1u : 0u,
-                cc_to_amp_lfo_depth(value)
             );
             break;
 
