@@ -107,7 +107,7 @@ void midi_task(void *arg)
             }
         }
 
-        taskYIELD();
+        vTaskDelay(1);
     }
 }
 
@@ -151,7 +151,7 @@ static void audio_task(void *)
             render_to_pwm(&pwm_buf[BLOCK_SIZE], BLOCK_SIZE);
         }
 
-        taskYIELD();
+        // taskYIELD();
     }
 }
 
