@@ -22,7 +22,7 @@ All CC values are standard 0-127 MIDI values.\
 | CC | Parameter | 参数 | Range / 范围 |
 | --- | --- | --- | --- |
 | 7 | Channel Volume | 通道音量 | 0-127 |
-| 14 | Algorithm | 算法 | 0-31: FM, 32-63: Feedback FM, 64-95: Additive, 96-127: AM |
+| 14 | Algorithm | 算法 | 0-31: FM, 32-63: Feedback FM, 64-95: AM, 96-127: Additive |
 | 15 | Mod Index | 调制深度 | 0-524288 |
 | 16 | Feedback | 反馈量 | 0-7 |
 
