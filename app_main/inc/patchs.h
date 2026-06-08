@@ -47,6 +47,9 @@ typedef struct {
 #define PATCH_ADD(mod_, car_) \
     { ALG_ADD, 0, 0, { mod_, car_ } }
 
+#define PATCH_AM(mod_index_, mod_, car_) \
+    { ALG_AM, mod_index_, 0, { mod_, car_ } }
+
 static const patch_t patch_bank[PATCH_BANK_SIZE] = {
     // 1 Acoustic Grand Piano
     PATCH_FM(

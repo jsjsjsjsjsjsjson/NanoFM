@@ -6,7 +6,7 @@ NanoFM 是一个运行在 STM32F103 上的全定点 2OP FM 合成器，支持 US
 ## It features / 它拥有
 
 - Fixed-point 2-operator synthesis core / 全定点 2OP 合成核心
-- FM, feedback FM, and additive algorithms / 支持 FM、带反馈 FM 和加法算法
+- FM, feedback FM, AM, and additive algorithms / 支持 FM、带反馈 FM、AM 和加法算法
 - 40 kHz sample rate with double-buffered DMA / 40 kHz 采样率，双缓冲 DMA 输出
 - USB MIDI support for notes, CCs, and program changes / 支持 USB MIDI 音符、CC 和音色切换
 - Built-in patch bank with 8 simple patchs / 内置 8 个预设简单音色
@@ -22,7 +22,7 @@ All CC values are standard 0-127 MIDI values.\
 | CC | Parameter | 参数 | Range / 范围 |
 | --- | --- | --- | --- |
 | 7 | Channel Volume | 通道音量 | 0-127 |
-| 14 | Algorithm | 算法 | 0-42: FM, 43-85: Feedback FM, 86-127: Additive |
+| 14 | Algorithm | 算法 | 0-31: FM, 32-63: Feedback FM, 64-95: Additive, 96-127: AM |
 | 15 | Mod Index | 调制深度 | 0-524288 |
 | 16 | Feedback | 反馈量 | 0-7 |
 

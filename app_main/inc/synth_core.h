@@ -125,12 +125,16 @@ static inline wave_type_t cc_to_wave(uint8_t value) {
 }
 
 static inline channel_alg_t cc_to_alg(uint8_t value) {
-    if (value < 43) {
+    if (value < 32) {
         return ALG_FM;
     }
 
-    if (value < 86) {
+    if (value < 64) {
         return ALG_FM_FB;
+    }
+
+    if (value < 96) {
+        return ALG_AM;
     }
 
     return ALG_ADD;
@@ -851,6 +855,18 @@ public:
                 ((int32_t)mod * (int32_t)mod_index);
 
             out = op[1].process(pm);
+        }
+        break;
+
+        case ALG_AM: {
+            int16_t mod = op[0].process(0);
+            int32_t c = op[1].process(0);
+
+            int32_t amp =
+                (int32_t)(LEVEL_MAX +
+                    (((int64_t)mod * (int64_t)mod_index) >> 15));
+
+            out = (int32_t)(((int64_t)c * (int64_t)amp) >> 16);
         }
         break;
 

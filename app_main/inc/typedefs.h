@@ -23,6 +23,7 @@ typedef enum {
 typedef enum {
     ALG_FM,    // M -> C -> OUT
     ALG_FM_FB, // M (Feedback) -> C -> OUT
+    ALG_AM,    // M -> amp(C) -> OUT
     ALG_ADD,   // M + C -> OUT
 } channel_alg_t;
 
